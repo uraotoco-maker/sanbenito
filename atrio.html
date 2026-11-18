@@ -373,5 +373,26 @@ María, con el velo sobre la cabeza y las manos sobre el pecho, escucha dentro d
 <script>/*proteccion liviana*/(function(){var d=document;function n(e){if(e.target&&(e.target.tagName==='IMG'||e.target.closest&&e.target.closest('img,picture,dialog'))){e.preventDefault();}}
 d.addEventListener('contextmenu',n);d.addEventListener('dragstart',n);})();</script>
 <style>img{-webkit-user-drag:none;user-select:none;-webkit-touch-callout:none}</style>
+<script>/*atras-cierra-ventana*/(function(){
+var ds=[].slice.call(document.querySelectorAll("dialog"));if(!ds.length||!history.pushState){return;}
+var depth=0,ignore=false,was=[];
+function mark(d){d._byPop=false;}
+ds.forEach(function(d,i){was[i]=d.open;mark(d);
+ new MutationObserver(function(){
+  if(d.open&&!was[i]){was[i]=true;try{history.pushState({sb:1},"",location.href);depth++;}catch(e){}}
+  else if(!d.open&&was[i]){was[i]=false;
+   if(d._byPop){d._byPop=false;}
+   else if(depth>0){depth--;ignore=true;history.back();}
+  }
+ }).observe(d,{attributes:true,attributeFilter:["open"]});
+});
+window.addEventListener("popstate",function(){
+ if(ignore){ignore=false;return;}
+ if(depth<=0){return;}
+ for(var i=ds.length-1;i>=0;i--){
+  if(ds[i].open){depth--;ds[i]._byPop=true;if(ds[i].close){ds[i].close();}else{ds[i].removeAttribute("open");}break;}
+ }
+});
+})();</script>
 </body>
 </html>
