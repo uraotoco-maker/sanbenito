@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Librería San Benito</title>
+<style>@font-face{font-family:"Cormorant Garamond";font-style:normal;font-weight:600;font-display:swap;src:url(fonts/cormorant-garamond-600.woff) format("woff")}@font-face{font-family:"Cormorant Garamond";font-style:normal;font-weight:700;font-display:swap;src:url(fonts/cormorant-garamond-700.woff) format("woff")}@font-face{font-family:"DM Sans";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/dm-sans-400.woff) format("woff")}@font-face{font-family:"DM Sans";font-style:normal;font-weight:500;font-display:swap;src:url(fonts/dm-sans-500.woff) format("woff")}@font-face{font-family:"DM Sans";font-style:normal;font-weight:600;font-display:swap;src:url(fonts/dm-sans-600.woff) format("woff")}</style>
+<style>
+/* Layout: medalla y título, grilla de santos en dos columnas, sección Capilla Santo Cristo en una columna; cada tarjeta abre un panel con foto, reseña corta y "Leer más" */
+:root {
+  --bg: #181213;
+  --surface: #241b1d;
+  --fg: #f1e9e6;
+  --muted: #b4a5a7;
+  --line: #3a2e31;
+  --accent: #e08792;
+  --display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--body);
+  padding-block: 40px 36px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+main { max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+header { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.logo { width: 120px; height: 120px; max-width: 100%; display: block; }
+h1 { font: 700 40px/1.02 var(--display); letter-spacing: 0.01em; margin: 0; text-align: center; text-wrap: balance; }
+.rule { width: 48px; height: 2px; background: var(--accent); border-radius: 2px; }
+ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+ul.obras { grid-template-columns: minmax(0, 1fr); }
+button.card {
+  display: flex; flex-direction: column; min-width: 0; width: 100%; height: 100%; padding: 0; margin: 0;
+  background: var(--surface); color: var(--fg); font: inherit; text-align: inherit; cursor: pointer;
+  border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+  transition: border-color .12s ease, transform .12s ease;
+}
+button.card:hover { border-color: var(--accent); transform: translateY(-2px); }
+button:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+button.card img { width: 100%; height: auto; aspect-ratio: 3 / 4; object-fit: cover; object-position: 50% 3%; display: block; max-width: 100%; }
+button.card.obra img { aspect-ratio: 2 / 1; object-position: 50% 50%; }
+button.card.tri img { aspect-ratio: 10 / 9; object-position: 50% 50%; }
+.name { padding: 12px 12px 14px; font: 700 18px/1.15 var(--display); text-align: center; text-wrap: balance; flex: 1; display: grid; place-items: center; gap: 4px; }
+.name .sub { font: 500 12px/1.2 var(--body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.sec { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; margin-top: 12px; }
+.sec h2 { font: 700 32px/1.05 var(--display); margin: 0; text-wrap: balance; }
+.sec p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.5; max-width: 38ch; }
+.social { display: flex; justify-content: center; }
+a.ig {
+  width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center;
+  color: var(--accent); border: 1px solid var(--line); background: var(--surface);
+}
+a.ig:hover { border-color: var(--accent); }
+a.ig svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Panel */
+dialog.saint {
+  width: min(440px, calc(100% - 32px)); max-height: calc(100% - 32px); padding: 0; overflow: auto; overscroll-behavior: contain;
+  background: var(--surface); color: var(--fg); border: 1px solid var(--line); border-radius: 16px;
+}
+dialog.saint::backdrop { background: rgba(8, 5, 6, 0.78); }
+.sheet { display: flex; flex-direction: column; }
+.sheet img { width: 100%; height: 300px; object-fit: cover; object-position: 50% 2%; display: block; max-width: 100%; }
+.sheet img.wide { height: auto; aspect-ratio: 2 / 1; object-position: 50% 50%; }
+.sheet img.tri { height: auto; aspect-ratio: 10 / 9; object-position: 50% 50%; cursor: zoom-in; }
+.body { padding: 20px 20px 22px; display: flex; flex-direction: column; gap: 14px; }
+.body h2 { font: 700 30px/1.05 var(--display); margin: 0; text-wrap: balance; }
+#saint-text { display: flex; flex-direction: column; gap: 12px; }
+.body p { margin: 0; font-size: 16px; line-height: 1.65; color: var(--muted); max-width: 65ch; }
+.parts { display: flex; flex-direction: column; gap: 24px; margin-top: 6px; }
+.part { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.part .zoom-btn { position: relative; display: block; width: 100%; padding: 0; margin: 0; border: 0; background: none; cursor: zoom-in; border-radius: 10px; }
+.part .zoom-btn img { width: 100%; height: auto; aspect-ratio: auto; border-radius: 10px; border: 1px solid var(--line); display: block; }
+.part .zoom-btn .lens {
+  position: absolute; right: 10px; bottom: 10px; width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(24, 18, 19, 0.78); color: var(--fg); display: grid; place-items: center;
+}
+.part .zoom-btn .lens svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+.tri-saint { padding-top: 22px; border-top: 1px solid var(--line); }
+.tri-saint .zoom-btn img { aspect-ratio: 4 / 3; object-fit: cover; object-position: 50% 2%; }
+.tri-saint .full { display: flex; flex-direction: column; gap: 12px; }
+.tri-saint .full[hidden] { display: none; }
+.tri-saint .s-more { align-self: flex-start; margin-top: 4px; padding: 9px 16px; font-size: 14px; }
+.part figcaption { display: flex; flex-direction: column; gap: 6px; }
+.part h3 { font: 700 23px/1.1 var(--display); margin: 0; text-wrap: balance; }
+.body .part p { font-size: 15.5px; line-height: 1.6; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.more {
+  font: 600 15px/1 var(--body); color: var(--accent); background: transparent; cursor: pointer;
+  border: 1px solid var(--accent); border-radius: 999px; padding: 11px 20px;
+}
+.more:hover { background: var(--accent); color: var(--surface); }
+.close {
+  font: 600 15px/1 var(--body); color: var(--fg); background: transparent; cursor: pointer;
+  border: 1px solid var(--line); border-radius: 999px; padding: 11px 20px;
+}
+.close:hover { border-color: var(--accent); }
+.pin {
+  position: absolute; width: 28px; height: 28px; border-radius: 50%; transform: translate(-50%, -50%);
+  background: var(--accent); color: #181213; border: 2px solid #181213;
+  font: 700 14px/1 var(--body); display: grid; place-items: center; pointer-events: none;
+}
+ol.legend { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+ol.legend li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; align-items: start; }
+ol.legend .n {
+  width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #181213;
+  font: 700 14px/1 var(--body); display: grid; place-items: center;
+}
+ol.legend b { display: block; font: 700 18px/1.15 var(--display); color: var(--fg); }
+ol.legend span.t { display: block; margin-top: 2px; font-size: 15px; line-height: 1.5; color: var(--muted); }
+/* Ampliar imagen */
+dialog.zoom {
+  width: 100%; height: 100%; max-width: 100%; max-height: 100%; margin: 0; padding: 0; border: 0;
+  background: #080506; color: var(--fg);
+}
+dialog.zoom[open] { display: flex; flex-direction: column; }
+.zoom-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px max(16px, env(safe-area-inset-right, 0px)) 8px max(16px, env(safe-area-inset-left, 0px));
+  padding-top: calc(12px + env(safe-area-inset-top, 0px));
+}
+.zoom-cap { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.zoom-cap b { font: 700 20px/1.1 var(--display); }
+.zoom-cap span { font-size: 13px; color: var(--muted); }
+.zoom-stage { flex: 1; min-height: 0; overflow: auto; display: grid; place-items: center; padding: 0 8px 16px; }
+.zoom-stage img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; cursor: zoom-in; border-radius: 6px; }
+.zoom-stage.big { display: block; }
+.zoom-stage.big img { max-width: none; max-height: none; cursor: zoom-out; }
+@media (prefers-reduced-motion: reduce) { button.card { transition: none; } }
+
+.menu { display: flex; flex-direction: column; gap: 14px; }
+a.mi {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; text-decoration: none;
+  background: var(--surface); color: var(--fg); border: 1px solid var(--line); border-radius: 14px; padding: 20px 20px;
+  transition: border-color .12s ease, transform .12s ease;
+}
+a.mi:hover { border-color: var(--accent); transform: translateY(-2px); }
+a.mi b { font: 700 26px/1.1 var(--display); display: block; }
+a.mi span.d { display: block; margin-top: 4px; font-size: 14px; line-height: 1.4; color: var(--muted); }
+a.mi svg { flex: none; width: 22px; height: 22px; stroke: var(--accent); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+a.back { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; color: var(--muted); text-decoration: none; font-size: 15px; padding: 6px 0; }
+a.back:hover { color: var(--accent); }
+a.back svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.soon { text-align: center; color: var(--muted); font-size: 16px; line-height: 1.6; margin: 0; }
+.hours { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.hours h2 { font: 700 28px/1.05 var(--display); margin: 0; }
+.hours h3 { font: 600 12px/1 var(--body); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 0 0 6px; }
+.hours dl { margin: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 14px; font-size: 15px; line-height: 1.45; }
+.hours dt { color: var(--muted); }
+.hours dd { margin: 0; text-align: right; font-weight: 500; }
+.hours .note { margin: 0; font-size: 14px; color: var(--muted); line-height: 1.5; }
+a.mail { align-self: flex-start; display: inline-block; text-decoration: none; color: var(--fg); border: 1px solid var(--accent); border-radius: 999px; padding: 11px 18px; font: 600 15px/1 var(--body); max-width: 100%; overflow-wrap: anywhere; }
+a.mail:hover { background: var(--accent); color: #181213; }
+
+/* ===== Computadora (pantallas de 900 px o más). El celular no cambia. ===== */
+@media (min-width: 900px) {
+  body { padding-block: 64px 56px; }
+  main { max-width: 1040px; gap: 40px; }
+  .logo { width: 140px; height: 140px; }
+  h1 { font-size: 56px; }
+  ul { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+  ul.obras { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+  ul:has(> li:only-child) { grid-template-columns: minmax(0, 1fr); max-width: 560px; width: 100%; margin-inline: auto; }
+  ul.obras button.card img { aspect-ratio: 3 / 2; object-fit: cover; object-position: 50% 35%; }
+  .name { font-size: 22px; padding: 16px 16px 18px; }
+  .sec h2 { font-size: 40px; }
+  .sec p { font-size: 17px; max-width: 52ch; }
+  .menu { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+  .hours { max-width: 760px; width: 100%; margin-inline: auto; padding: 28px; }
+  dialog.saint { width: min(860px, calc(100% - 64px)); max-height: calc(100% - 64px); }
+  .sheet img { height: 420px; }
+  .body { padding: 28px 34px 30px; gap: 18px; }
+  .body h2 { font-size: 38px; }
+  .body p { font-size: 17px; }
+  .parts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 30px; align-items: start; }
+}
+</style>
+
+<style>body{margin:0}img{max-width:100%}</style>
+</head>
+<body>
+<main>
+  <header>
+    <img class="logo" src="img/medalla.webp" alt="Medalla de San Benito" width="120" height="120">
+    <h1>Librería San Benito</h1>
+    <span class="rule" aria-hidden="true"></span>
+  </header>
+
+  <p class="soon">Dos trípticos en relieve con seis santos. Tocá uno para conocer a cada santo.</p>
+
+  <ul class="obras">
+    <li>
+      <button class="card obra tri" type="button" data-kind="tri" data-id="triptico-gertrudis-juan-mauro" data-ids="santa-gertrudis san-juan-bautista san-mauro" data-name="Santa Gertrudis, San Juan Bautista y San Mauro" data-short="Tríptico en relieve con tres santos, cada uno en su nicho: a la izquierda Santa Gertrudis, en el centro San Juan Bautista y a la derecha San Mauro. Es obra de Santiago Berna, de hacia 1940, y formaba parte de un altar de un oratorio interno. Tocá «Leer más» para conocer a cada uno." data-full="Tríptico en relieve con tres santos, cada uno en su nicho: a la izquierda Santa Gertrudis, en el centro San Juan Bautista y a la derecha San Mauro. Es obra de Santiago Berna, de hacia 1940, y formaba parte de un altar de un oratorio interno. Tocá «Leer más» para conocer a cada uno.
+
+Abajo está cada santo con su foto. Tocá la foto para ampliarla y «Leer más» para leer su historia.">
+        <img src="img/59be402d96.webp" loading="lazy" decoding="async" alt="Tríptico en relieve con Santa Gertrudis, San Juan Bautista y San Mauro">
+        <span class="name">Santa Gertrudis, San Juan Bautista y San Mauro<span class="sub">Tríptico en relieve</span></span>
+      </button>
+      <template><div class="parts"><figure class="part tri-saint" data-id="santa-gertrudis"><button class="zoom-btn" type="button" data-title="Santa Gertrudis" aria-label="Ampliar: Santa Gertrudis"><img src="img/f0cdf51554.webp" loading="lazy" decoding="async" alt="Imagen de Santa Gertrudis"><span class="lens" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.2-4.2M11 8v6M8 11h6"/></svg></span></button><figcaption><h3>Santa Gertrudis</h3><p>Santa Gertrudis la Grande fue una monja y mística alemana del siglo XIII, del monasterio de Helfta. Sus escritos, llenos de oración y confianza en Dios, hicieron de ella una de las grandes voces de la espiritualidad benedictina y cisterciense. Su fiesta es el 16 de noviembre.</p><button class="more s-more" type="button" aria-expanded="false">Leer más</button><div class="full" hidden><p>Gertrudis la Grande nació en 1256 en Turingia, Alemania. A los cinco años fue confiada al monasterio de Helfta, que vivía según la Regla de San Benito y era un centro de oración y de estudio. Allí la educó la abadesa Gertrudis de Hackeborn, y recibió una formación muy sólida en latín, en la Biblia y en los Padres de la Iglesia.</p><p>A los 25 años tuvo una experiencia espiritual que cambió su vida: sintió la presencia de Cristo y desde entonces se entregó por completo a la oración. Gertrudis escribió con sencillez y profundidad sobre lo que vivía. Entre sus obras se destacan El heraldo del amor divino y los Ejercicios, textos muy leídos desde entonces. En ellos aparece con fuerza la devoción al Corazón de Jesús, de la cual es una de las grandes precursoras.</p><p>Sus escritos se apoyan en la liturgia y en la Sagrada Escritura, y por eso son una enseñanza para quien quiere rezar con la Iglesia. Es una de las pocas mujeres a quienes se llama &quot;la Grande&quot;. Murió hacia 1302 en Helfta.</p><p>Su fiesta se celebra el 16 de noviembre.</p></div></figcaption></figure><figure class="part tri-saint" data-id="san-juan-bautista"><button class="zoom-btn" type="button" data-title="San Juan Bautista" aria-label="Ampliar: San Juan Bautista"><img src="img/e3a7f2fb43.webp" loading="lazy" decoding="async" alt="Imagen de San Juan Bautista"><span class="lens" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.2-4.2M11 8v6M8 11h6"/></svg></span></button><figcaption><h3>San Juan Bautista</h3><p>Precursor de Jesús. Predicó la conversión a orillas del río Jordán y bautizó a Jesús. Murió decapitado por orden del rey Herodes. La Iglesia celebra su nacimiento el 24 de junio y su martirio el 29 de agosto.</p><button class="more s-more" type="button" aria-expanded="false">Leer más</button><div class="full" hidden><p>Juan fue el hijo de Zacarías e Isabel, pariente de la Virgen María, y nació unos seis meses antes que Jesús. El Evangelio de San Lucas cuenta que su nacimiento fue anunciado por un ángel cuando sus padres ya eran ancianos.</p><p>Vivió en el desierto de Judea, vestido con piel de camello y alimentándose de langostas y miel silvestre. Desde allí predicaba a orillas del río Jordán un bautismo de conversión y pedía a la gente que cambiara de vida. Muchos acudían a escucharlo. Un día llegó Jesús para ser bautizado, y Juan lo señaló con las palabras &quot;Este es el Cordero de Dios que quita el pecado del mundo&quot;. Por eso, en las imágenes aparece a menudo con un cordero a sus pies, como en esta.</p><p>Juan reprendió públicamente al rey Herodes Antipas por su matrimonio con Herodías, y por eso fue encarcelado. Según el Evangelio, terminó decapitado por orden de Herodes. Jesús dijo de él que no había nacido nadie mayor entre los hombres. Fue el precursor que preparó el camino al Señor.</p><p>La Iglesia celebra su nacimiento el 24 de junio y su martirio el 29 de agosto.</p></div></figcaption></figure><figure class="part tri-saint" data-id="san-mauro"><button class="zoom-btn" type="button" data-title="San Mauro" aria-label="Ampliar: San Mauro"><img src="img/21522de85e.webp" loading="lazy" decoding="async" alt="Imagen de San Mauro"><span class="lens" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.2-4.2M11 8v6M8 11h6"/></svg></span></button><figcaption><h3>San Mauro</h3><p>Discípulo de San Benito desde niño. Según la tradición, caminó sobre el agua por obediencia para salvar a San Plácido de ahogarse. Llevó la regla benedictina a Francia, donde fundó el monasterio de Glanfeuil. Su fiesta es el 15 de enero.</p><button class="more s-more" type="button" aria-expanded="false">Leer más</button><div class="full" hidden><p>Mauro nació en Roma hacia el año 512, hijo de un noble llamado Equicio. Con unos doce años fue confiado a San Benito en Subiaco y se convirtió en uno de sus discípulos más cercanos y en su ayudante de confianza. Con el tiempo, Benito le encargó tareas de responsabilidad dentro de la comunidad.</p><p>Es el protagonista de un episodio famoso: cuando el pequeño Plácido cayó a un lago, Benito mandó a Mauro a salvarlo, y este caminó sobre el agua hasta sacarlo, sin darse cuenta de lo que hacía. Benito lo atribuyó a la obediencia de su discípulo; Mauro, en cambio, decía que había sido por la orden de su maestro. La escena muestra el valor que la tradición benedictina da a la obediencia.</p><p>Una tradición del siglo IX, que los historiadores consideran poco segura, cuenta que Benito lo envió a Francia, donde habría fundado el monasterio de Glanfeuil, a orillas del Loira, y que murió allí hacia 584. Siglos después, los benedictinos de la Congregación de San Mauro, famosa por sus estudios y ediciones de textos antiguos, tomaron su nombre. En la imagen aparece como abad, con el báculo.</p><p>Su fiesta se celebra el 15 de enero.</p></div></figcaption></figure></div></template>
+    </li>
+    <li>
+      <button class="card obra tri" type="button" data-kind="tri" data-id="triptico-placido-domingo-francisco" data-ids="san-placido santo-domingo-de-silos san-francisco-de-asis" data-name="San Plácido, Santo Domingo de Silos y San Francisco de Asís" data-short="Tríptico en relieve con tres santos, cada uno en su nicho: a la izquierda San Plácido, en el centro Santo Domingo de Silos y a la derecha San Francisco de Asís. Es obra de Santiago Berna, de hacia 1940, y formaba parte de un altar de un oratorio interno. Tocá «Leer más» para conocer a cada uno." data-full="Tríptico en relieve con tres santos, cada uno en su nicho: a la izquierda San Plácido, en el centro Santo Domingo de Silos y a la derecha San Francisco de Asís. Es obra de Santiago Berna, de hacia 1940, y formaba parte de un altar de un oratorio interno. Tocá «Leer más» para conocer a cada uno.
+
+Abajo está cada santo con su foto. Tocá la foto para ampliarla y «Leer más» para leer su historia.">
+        <img src="img/77282d3040.webp" loading="lazy" decoding="async" alt="Tríptico en relieve con San Plácido, Santo Domingo de Silos y San Francisco de Asís">
+        <span class="name">San Plácido, Santo Domingo de Silos y San Francisco de Asís<span class="sub">Tríptico en relieve</span></span>
+      </button>
+      <template><div class="parts"><figure class="part tri-saint" data-id="san-placido"><button class="zoom-btn" type="button" data-title="San Plácido" aria-label="Ampliar: San Plácido"><img src="img/f7d43df5b6.webp" loading="lazy" decoding="async" alt="Imagen de San Plácido"><span class="lens" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.2-4.2M11 8v6M8 11h6"/></svg></span></button><figcaption><h3>San Plácido</h3><p>Discípulo de San Benito. Según la tradición, su padre lo confió siendo niño al santo en Subiaco, y San Benito lo salvó de morir ahogado en un lago gracias a la obediencia de San Mauro. Fue enviado a Sicilia, donde murió mártir junto a sus compañeros. Su fiesta es el 5 de octubre.</p><button class="more s-more" type="button" aria-expanded="false">Leer más</button><div class="full" hidden><p>Plácido fue uno de los primeros discípulos de San Benito. Según la tradición, nació en Roma en una familia noble y, siendo todavía un niño, su padre lo confió a Benito para que lo educara en Subiaco, donde el santo vivía con sus monjes.</p><p>Su nombre aparece en un episodio muy conocido de la vida de San Benito. Un día, el pequeño Plácido fue a buscar agua a un lago, cayó y la corriente empezó a arrastrarlo. Benito, que estaba en su celda, advirtió lo que pasaba y mandó a Mauro a rescatarlo. Mauro corrió sobre el agua, sacó al niño y recién después notó lo que había hecho. Cuando se lo contaron a Benito, el santo lo atribuyó a la obediencia de Mauro.</p><p>Una tradición posterior cuenta que Plácido fue enviado a Sicilia para fundar un monasterio y que allí murió mártir, junto con sus compañeros, a manos de piratas. Los historiadores discuten cuánto hay de cierto en este final, pero la Iglesia lo venera como mártir. En la imagen se lo ve con una palma, que es el signo de los mártires.</p><p>Su fiesta se celebra el 5 de octubre.</p></div></figcaption></figure><figure class="part tri-saint" data-id="santo-domingo-de-silos"><button class="zoom-btn" type="button" data-title="Santo Domingo de Silos" aria-label="Ampliar: Santo Domingo de Silos"><img src="img/0ca98254d7.webp" loading="lazy" decoding="async" alt="Imagen de Santo Domingo de Silos"><span class="lens" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.2-4.2M11 8v6M8 11h6"/></svg></span></button><figcaption><h3>Santo Domingo de Silos</h3><p>Monje benedictino español del siglo XI, nacido en La Rioja. Fue abad del monasterio de San Sebastián de Silos, en Burgos, que renovó y que hoy lleva su nombre. Es recordado por rescatar cautivos y su fiesta es el 20 de diciembre.</p><button class="more s-more" type="button" aria-expanded="false">Leer más</button><div class="full" hidden><p>Domingo nació hacia el año 1000 en Cañas, en La Rioja, en el seno de una familia de campesinos. De joven fue pastor y se retiró a vivir en soledad y oración, hasta que ingresó como monje benedictino en el monasterio de San Millán de la Cogolla. Allí fue elegido prior y se destacó por su vida de oración y su obediencia a la Regla de San Benito.</p><p>Tuvo un enfrentamiento con el rey García de Navarra, que quería quedarse con bienes del monasterio. Domingo se negó a entregarlos y fue desterrado. Más tarde el rey Fernando I de Castilla lo recibió y le confió la abadía de San Sebastián de Silos, en Burgos, que estaba casi en ruinas.</p><p>Como abad la restauró, reunió una comunidad numerosa y levantó las bases del monasterio que hoy lleva su nombre y que es famoso por su claustro románico. Se lo recuerda también por su caridad con los pobres y por rescatar a cristianos que habían sido tomados cautivos, por lo que es patrono de los prisioneros. Murió el 20 de diciembre de 1073.</p><p>Su fiesta se celebra el 20 de diciembre.</p></div></figcaption></figure><figure class="part tri-saint" data-id="san-francisco-de-asis"><button class="zoom-btn" type="button" data-title="San Francisco de Asís" aria-label="Ampliar: San Francisco de Asís"><img src="img/f25f0a3bc8.webp" loading="lazy" decoding="async" alt="Imagen de San Francisco de Asís"><span class="lens" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.2-4.2M11 8v6M8 11h6"/></svg></span></button><figcaption><h3>San Francisco de Asís</h3><p>Nació en Asís, Italia, hacia 1182. Dejó la riqueza de su familia para vivir en pobreza y fundó la Orden de los Frailes Menores, los franciscanos. Es conocido por su amor a toda la creación y por el Cántico de las criaturas. Su fiesta es el 4 de octubre.</p><button class="more s-more" type="button" aria-expanded="false">Leer más</button><div class="full" hidden><p>Francisco nació en Asís, Italia, hacia 1182, hijo de un rico comerciante de telas. De joven soñaba con la fama de caballero y participó en una guerra en la que fue tomado prisionero. Tras una enfermedad empezó a cambiar de vida. Según cuenta la tradición, ante el crucifijo de la iglesia de San Damián oyó que Cristo le pedía reparar su casa, y entendió que debía vivir el Evangelio al pie de la letra.</p><p>Renunció a la herencia de su padre ante el obispo de Asís y eligió vivir en pobreza, atendiendo a los leprosos y predicando. Pronto se le unieron otros hermanos y así nació la Orden de los Frailes Menores, los franciscanos. Junto con Santa Clara fundó también la rama de las Hermanas Pobres. En 1223 preparó en Greccio una representación del nacimiento de Jesús, origen del pesebre navideño.</p><p>Es muy conocido por su amor a toda la creación, que quedó plasmado en el Cántico de las criaturas, donde alaba a Dios por el sol, la luna, el agua y el fuego. Dos años antes de morir, en el monte Alvernia, recibió las llagas de Cristo, los estigmas. Murió en 1226 y fue canonizado dos años después. Es patrono de Italia y de quienes cuidan el medio ambiente.</p><p>Su fiesta se celebra el 4 de octubre.</p></div></figcaption></figure></div></template>
+    </li>
+  </ul>
+
+  <div class="social">
+    <a class="ig" href="https://www.instagram.com/sanbenitosanteria" target="_blank" rel="noopener" aria-label="Instagram de San Benito Santería">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6"/></svg>
+    </a>
+  </div>
+</main>
+
+<dialog class="saint" id="saint" aria-labelledby="saint-name">
+  <div class="sheet">
+    <img id="saint-img" src="" alt="">
+    <div class="body">
+      <h2 id="saint-name"></h2>
+      <div id="saint-text"></div>
+      <div class="actions">
+        <button class="more" id="saint-more" type="button" aria-expanded="false">Leer más</button>
+        <button class="close" id="saint-close" type="button">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="zoom" id="zoom" aria-label="Imagen ampliada">
+  <div class="zoom-bar">
+    <div class="zoom-cap"><b id="zoom-title"></b><span id="zoom-hint">Tocá la imagen para acercar</span></div>
+    <button class="close" id="zoom-close" type="button">Cerrar</button>
+  </div>
+  <div class="zoom-stage" id="zoom-stage"><img id="zoom-img" src="" alt=""></div>
+</dialog>
+
+<script>
+(function () {
+  var dlg = document.getElementById("saint");
+  var img = document.getElementById("saint-img");
+  var nameEl = document.getElementById("saint-name");
+  var textEl = document.getElementById("saint-text");
+  var moreBtn = document.getElementById("saint-more");
+  var cards = document.querySelectorAll("button.card");
+  var current = null;
+  var expanded = false;
+
+  function render() {
+    var parts = current.getAttribute(expanded ? "data-full" : "data-short").split("\n\n");
+    textEl.textContent = "";
+    for (var j = 0; j < parts.length; j++) {
+      var p = document.createElement("p");
+      p.textContent = parts[j];
+      textEl.appendChild(p);
+    }
+    if (expanded) {
+      var tpl = current.parentNode.querySelector("template");
+      if (tpl) { textEl.appendChild(tpl.content.cloneNode(true)); }
+    }
+    moreBtn.textContent = expanded ? "Leer menos" : "Leer más";
+    moreBtn.setAttribute("aria-expanded", expanded ? "true" : "false");
+  }
+  function open(card, sid) {
+    current = card;
+    expanded = !!sid;
+    var pic = card.querySelector("img");
+    img.src = pic.src;
+    img.alt = pic.alt;
+    var kind = card.getAttribute("data-kind");
+    img.className = kind === "obra" ? "wide" : (kind === "tri" ? "tri" : "");
+    nameEl.textContent = card.getAttribute("data-name");
+    render();
+    if (!dlg.open) {
+      if (dlg.showModal) { dlg.showModal(); } else { dlg.setAttribute("open", ""); }
+    }
+    dlg.scrollTop = 0;
+    if (sid) {
+      var secs = textEl.querySelectorAll(".tri-saint");
+      for (var k = 0; k < secs.length; k++) {
+        if (secs[k].getAttribute("data-id") === sid) {
+          var sb = secs[k].querySelector("button.s-more");
+          if (sb && secs[k].querySelector(".full").hidden) { sb.click(); }
+          secs[k].scrollIntoView({ block: "start" });
+        }
+      }
+    }
+  }
+  function close() {
+    if (dlg.close) { dlg.close(); } else { dlg.removeAttribute("open"); }
+  }
+  function fromHash() {
+    var id = "";
+    try { id = decodeURIComponent(location.hash.replace("#", "")); } catch (e) { id = ""; }
+    if (!id) { return; }
+    for (var i = 0; i < cards.length; i++) {
+      if (cards[i].getAttribute("data-id") === id) { open(cards[i]); return; }
+      var ids = (cards[i].getAttribute("data-ids") || "").split(" ");
+      if (ids.indexOf(id) > -1) { open(cards[i], id); return; }
+    }
+  }
+  for (var i = 0; i < cards.length; i++) {
+    cards[i].addEventListener("click", function (e) { open(e.currentTarget); });
+  }
+  moreBtn.addEventListener("click", function () {
+    expanded = !expanded;
+    render();
+    if (expanded) { nameEl.scrollIntoView({ block: "start" }); } else { dlg.scrollTop = 0; }
+  });
+  var zdlg = document.getElementById("zoom");
+  var zimg = document.getElementById("zoom-img");
+  var zstage = document.getElementById("zoom-stage");
+  var zhint = document.getElementById("zoom-hint");
+  textEl.addEventListener("click", function (e) {
+    var sm = e.target.closest ? e.target.closest("button.s-more") : null;
+    if (sm) {
+      var sec = sm.closest(".tri-saint"), fb = sec.querySelector(".full");
+      var show = fb.hidden;
+      fb.hidden = !show;
+      sm.textContent = show ? "Leer menos" : "Leer más";
+      sm.setAttribute("aria-expanded", show ? "true" : "false");
+      return;
+    }
+    var btn = e.target.closest ? e.target.closest("button.zoom-btn") : null;
+    if (!btn) { return; }
+    var im = btn.querySelector("img");
+    zimg.src = im.src;
+    zimg.alt = im.alt;
+    document.getElementById("zoom-title").textContent = btn.getAttribute("data-title");
+    zstage.className = "zoom-stage";
+    zhint.textContent = "Tocá la imagen para acercar";
+    if (zdlg.showModal) { zdlg.showModal(); } else { zdlg.setAttribute("open", ""); }
+    zstage.scrollTop = 0;
+    zstage.scrollLeft = 0;
+  });
+  img.addEventListener("click", function () {
+    if (img.className !== "tri") { return; }
+    zimg.src = img.src;
+    zimg.alt = img.alt;
+    document.getElementById("zoom-title").textContent = nameEl.textContent;
+    zstage.className = "zoom-stage";
+    zhint.textContent = "Tocá la imagen para acercar";
+    if (zdlg.showModal) { zdlg.showModal(); } else { zdlg.setAttribute("open", ""); }
+  });
+  zimg.addEventListener("click", function () {
+    var big = zstage.classList.toggle("big");
+    zhint.textContent = big ? "Deslizá para recorrer. Tocá para volver" : "Tocá la imagen para acercar";
+    zstage.scrollTop = big ? (zstage.scrollHeight - zstage.clientHeight) / 2 : 0;
+    zstage.scrollLeft = big ? (zstage.scrollWidth - zstage.clientWidth) / 2 : 0;
+  });
+  document.getElementById("zoom-close").addEventListener("click", function () {
+    if (zdlg.close) { zdlg.close(); } else { zdlg.removeAttribute("open"); }
+  });
+  document.getElementById("saint-close").addEventListener("click", close);
+  dlg.addEventListener("click", function (e) { if (e.target === dlg) { close(); } });
+  dlg.addEventListener("close", function () {
+    try { if (location.hash) { history.replaceState(null, "", location.pathname + location.search); } } catch (e) {}
+  });
+  window.addEventListener("hashchange", fromHash);
+  fromHash();
+})();
+</script>
+<script>/*proteccion liviana*/(function(){var d=document;function n(e){if(e.target&&(e.target.tagName==='IMG'||e.target.closest&&e.target.closest('img,picture,dialog'))){e.preventDefault();}}
+d.addEventListener('contextmenu',n);d.addEventListener('dragstart',n);})();</script>
+<style>img{-webkit-user-drag:none;user-select:none;-webkit-touch-callout:none}</style>
+</body>
+</html>
